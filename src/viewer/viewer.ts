@@ -54,6 +54,11 @@ export class PsrFormatterApp {
       void this.handleFiles(event.dataTransfer?.files);
     });
     window.addEventListener("keydown", (event) => this.onKeyDown(event));
+    window.addEventListener("beforeprint", () => this.preparePrintAssetsSync());
+    window.addEventListener("afterprint", () => {
+      this.status = "Print view prepared.";
+      this.updateStatus();
+    });
     this.store.subscribe(() => this.syncCaptions());
   }
 
@@ -341,6 +346,7 @@ export class PsrFormatterApp {
     this.activeReportId = this.activeReportId ?? parsed[0]?.id;
     this.status = errors.length ? `${parsed.length} parsed, ${errors.length} failed.` : `${parsed.length} report${parsed.length === 1 ? "" : "s"} ready.`;
     this.render();
+    window.setTimeout(() => void this.preparePrintAssets(true), 250);
   }
 
   private onClick(event: Event): void {
@@ -373,7 +379,7 @@ export class PsrFormatterApp {
     } else if (action === "markdown") {
       this.exportMarkdown();
     } else if (action === "print") {
-      window.print();
+      await this.printReport();
     } else if (action === "theme") {
       this.toggleTheme();
     } else if (action === "presentation") {
@@ -479,6 +485,65 @@ export class PsrFormatterApp {
     downloadBlob(blob, "psr-reports.zip");
     this.status = "ZIP ready.";
     this.updateStatus();
+  }
+
+  private async printReport(): Promise<void> {
+    if (!this.reports.length) {
+      this.status = "Open a PSR file first.";
+      this.updateStatus();
+      return;
+    }
+
+    this.status = "Preparing every screenshot for print...";
+    this.updateStatus();
+    await this.preparePrintAssets(false);
+    this.status = "Print view ready.";
+    this.updateStatus();
+    window.setTimeout(() => window.print(), 50);
+  }
+
+  private preparePrintAssetsSync(): void {
+    this.imageObserver?.disconnect();
+
+    for (const image of Array.from(this.root.querySelectorAll<HTMLImageElement>("img[data-src]"))) {
+      image.loading = "eager";
+      image.src = image.dataset.src ?? image.src;
+      image.removeAttribute("data-src");
+    }
+
+    for (const layer of this.layers) {
+      layer.resize();
+    }
+  }
+
+  private async preparePrintAssets(silent: boolean): Promise<void> {
+    this.preparePrintAssetsSync();
+    const images = Array.from(this.root.querySelectorAll<HTMLImageElement>(".report-view img"));
+    await Promise.all(images.map((image) => this.waitForImage(image)));
+
+    for (const layer of this.layers) {
+      layer.resize();
+    }
+
+    if (!silent) {
+      this.updateStatus();
+    }
+  }
+
+  private waitForImage(image: HTMLImageElement): Promise<void> {
+    if (image.complete && image.naturalWidth > 0) {
+      return Promise.resolve();
+    }
+
+    return new Promise((resolve) => {
+      const finish = () => resolve();
+      image.addEventListener("load", finish, { once: true });
+      image.addEventListener("error", finish, { once: true });
+
+      if (typeof image.decode === "function") {
+        image.decode().then(finish, finish);
+      }
+    });
   }
 
   private exportJson(): void {
