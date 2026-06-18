@@ -290,23 +290,33 @@ export class AnnotationLayer {
 
   private drawCursor(point: CursorPoint): void {
     this.context.save();
-    this.context.fillStyle = "rgba(255, 218, 77, 0.26)";
+    this.context.fillStyle = "rgba(255, 218, 77, 0.12)";
     this.context.beginPath();
-    this.context.arc(point.x, point.y, 34, 0, Math.PI * 2);
+    this.context.arc(point.x, point.y, 30, 0, Math.PI * 2);
     this.context.fill();
-    this.context.strokeStyle = "rgba(226, 65, 65, 0.92)";
-    this.context.lineWidth = 4;
-    this.context.setLineDash([8, 6]);
+    this.context.strokeStyle = "rgba(20, 28, 31, 0.48)";
+    this.context.lineWidth = 3;
+    this.context.setLineDash([7, 7]);
     this.context.beginPath();
-    this.context.arc(point.x, point.y, 22, 0, Math.PI * 2);
+    this.context.arc(point.x, point.y, 24, 0, Math.PI * 2);
     this.context.stroke();
     this.context.setLineDash([]);
+    this.context.strokeStyle = "rgba(20, 28, 31, 0.42)";
+    this.context.lineWidth = 2;
     this.context.beginPath();
-    this.context.moveTo(point.x - 32, point.y);
-    this.context.lineTo(point.x + 32, point.y);
-    this.context.moveTo(point.x, point.y - 32);
-    this.context.lineTo(point.x, point.y + 32);
+    this.context.moveTo(point.x - 38, point.y);
+    this.context.lineTo(point.x - 28, point.y);
+    this.context.moveTo(point.x + 28, point.y);
+    this.context.lineTo(point.x + 38, point.y);
+    this.context.moveTo(point.x, point.y - 38);
+    this.context.lineTo(point.x, point.y - 28);
+    this.context.moveTo(point.x, point.y + 28);
+    this.context.lineTo(point.x, point.y + 38);
     this.context.stroke();
+    this.context.fillStyle = "rgba(20, 28, 31, 0.52)";
+    this.context.beginPath();
+    this.context.arc(point.x, point.y, 3, 0, Math.PI * 2);
+    this.context.fill();
     this.context.restore();
   }
 }

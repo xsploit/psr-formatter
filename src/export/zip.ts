@@ -155,8 +155,10 @@ figcaption{color:var(--muted);margin-top:.45rem}
 
 function renderSvgOverlay(width: number, height: number, annotations: Annotation[], cursor?: CursorPoint): string {
   const cursorMarkup = cursor
-    ? `<circle cx="${cursor.x}" cy="${cursor.y}" r="22" fill="none" stroke="rgba(226,65,65,.9)" stroke-width="4" stroke-dasharray="8 6"/>
-<path d="M ${cursor.x - 32} ${cursor.y} L ${cursor.x + 32} ${cursor.y} M ${cursor.x} ${cursor.y - 32} L ${cursor.x} ${cursor.y + 32}" stroke="rgba(226,65,65,.9)" stroke-width="4"/>`
+    ? `<circle cx="${cursor.x}" cy="${cursor.y}" r="30" fill="rgba(255,218,77,.12)"/>
+<circle cx="${cursor.x}" cy="${cursor.y}" r="24" fill="none" stroke="rgba(20,28,31,.48)" stroke-width="3" stroke-dasharray="7 7"/>
+<path d="M ${cursor.x - 38} ${cursor.y} L ${cursor.x - 28} ${cursor.y} M ${cursor.x + 28} ${cursor.y} L ${cursor.x + 38} ${cursor.y} M ${cursor.x} ${cursor.y - 38} L ${cursor.x} ${cursor.y - 28} M ${cursor.x} ${cursor.y + 28} L ${cursor.x} ${cursor.y + 38}" stroke="rgba(20,28,31,.42)" stroke-width="2"/>
+<circle cx="${cursor.x}" cy="${cursor.y}" r="3" fill="rgba(20,28,31,.52)"/>`
     : "";
   const annotationMarkup = annotations.map(renderAnnotationSvg).join("");
   return `<svg viewBox="0 0 ${width} ${height}" aria-hidden="true">${cursorMarkup}${annotationMarkup}</svg>`;
